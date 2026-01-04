@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
-const API_URL = "http://localhost:3333";
+const API_URL = "http://e08448k4gkc0w8w44cgosks8.72.62.108.178.sslip.io";
 
 export const api = {
   me: async () => {
