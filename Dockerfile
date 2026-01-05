@@ -3,7 +3,7 @@ FROM oven/bun:1 AS deps
 WORKDIR /app
 
 # Copia arquivos de configuração de pacotes
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Estágio 2: Build da aplicação
