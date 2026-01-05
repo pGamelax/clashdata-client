@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: "https://api.clashdata.pro",
+  baseURL: "https://clashdata.pro",
   fetchOptions: {
     credentials: "include",
   },
