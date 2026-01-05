@@ -8,6 +8,7 @@ import {
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
+  ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -23,8 +24,15 @@ import { Percent, Search, Star, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DatePickerWithRange } from "@/components/data-picker";
+// IMPORTANTE: Importando ProcessedPlayer aqui
+import { PlayerStats, WarAction, ProcessedPlayer } from "./types";
 
-export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
+interface DataTableProps {
+  columns: ColumnDef<ProcessedPlayer>[];
+  data: PlayerStats[];
+}
+
+export function DataTable({ columns, data }: DataTableProps) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -36,9 +44,9 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
 
     if (!Array.isArray(data)) return { dynamicData: [], warCount: 0 };
 
-    const processed = data
+    const processed: ProcessedPlayer[] = data
       .map((player) => {
-        const attacks = player.allAttacks.filter((att: any) => {
+        const attacks = player.allAttacks.filter((att: WarAction) => {
           const attackDate = parseISO(att.date);
           if (!date?.from || !date?.to) {
             uniqueWarDates.add(att.date);
@@ -52,7 +60,7 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
           return isInRange;
         });
 
-        const defenses = player.allDefenses.filter((def: any) => {
+        const defenses = player.allDefenses.filter((def: WarAction) => {
           if (!date?.from || !date?.to) return true;
           return isWithinInterval(parseISO(def.date), {
             start: date.from,
@@ -61,24 +69,19 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
         });
 
         const attackCount = attacks.length;
-        const totalStars = attacks.reduce(
-          (acc: number, cur: any) => acc + cur.stars,
-          0,
-        );
+        const totalStars = attacks.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDestr = attacks.reduce(
-          (acc: number, cur: any) => acc + cur.destruction,
+          (acc, cur) => acc + cur.destruction,
           0,
         );
+
         const performanceScore =
           (K * GLOBAL_AVG + totalStars) / (K + attackCount);
 
         const defenseCount = defenses.length;
-        const totalDefStars = defenses.reduce(
-          (acc: number, cur: any) => acc + cur.stars,
-          0,
-        );
+        const totalDefStars = defenses.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDefDestr = defenses.reduce(
-          (acc: number, cur: any) => acc + cur.destruction,
+          (acc, cur) => acc + cur.destruction,
           0,
         );
 
@@ -119,21 +122,19 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
   return (
     <div className="space-y-4 w-full max-w-[100vw] overflow-hidden px-1 sm:px-0">
       <div className="flex flex-col gap-4 px-2 md:flex-row md:justify-between md:items-center">
-        <div className="flex items-center gap-3">
-          <div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Baseado em{" "}
-              <span className="font-semibold text-primary">{warCount}</span>{" "}
-              guerras
-            </p>
-          </div>
+        <div>
+          <p className="text-sm text-muted-foreground mt-1">
+            Análise baseada em{" "}
+            <span className="font-semibold text-primary">{warCount}</span>{" "}
+            guerras
+          </p>
         </div>
 
-        <div className="flex flex-col gap-2 w-full md:flex-row md:w-auto md:items-center">
+        <div className="flex flex-col gap-2 w-full md:w-auto md:items-center">
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar..."
+              placeholder="Buscar jogador..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-9 rounded-xl h-10 w-full"
@@ -189,7 +190,7 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-2 sm:py-2 first:pl-4 last:pr-4"
+                        className="py-2 first:pl-4 last:pr-4"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -204,49 +205,41 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
                         colSpan={columns.length}
                         className="p-2 sm:p-4"
                       >
-                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                          {row.original.displayAttacks.map(
-                            (att: any, i: number) => (
-                              <div
-                                key={i}
-                                className="p-3 rounded-xl sm:rounded-2xl bg-white dark:bg-zinc-900 border border-border/50 shadow-sm"
-                              >
-                                <div className="flex justify-between items-center mb-2">
-                                  <span className="text-[9px] font-bold uppercase text-muted-foreground">
-                                    Ataque {i + 1}
+                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                          {row.original.displayAttacks.map((att, i) => (
+                            <div
+                              key={i}
+                              className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-border/50 shadow-sm"
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-[9px] font-bold uppercase text-muted-foreground">
+                                  Ataque {i + 1}
+                                </span>
+                                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
+                                  <span className="text-[10px] font-bold">
+                                    {att.stars}
                                   </span>
-                                  <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
-                                    <span className="text-[10px] font-bold">
-                                      {att.stars}
-                                    </span>
-                                    <Star size={10} className="fill-current" />
-                                  </div>
-                                </div>
-                                <div className="font-bold text-[11px] sm:text-xs truncate mb-1">
-                                  {att.opponent}
-                                </div>
-                                <div className="text-[9px] sm:text-[10px] text-muted-foreground flex justify-between">
-                                  <span>
-                                    {new Date(
-                                      parseISO(att.date),
-                                    ).toLocaleDateString("pt-BR", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                    })}
-                                  </span>
-                                  <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
-                                    <span className="text-[10px] font-bold">
-                                      {att.destruction}
-                                    </span>
-                                    <Percent
-                                      size={10}
-                                      className="fill-current"
-                                    />
-                                  </div>
+                                  <Star size={10} className="fill-current" />
                                 </div>
                               </div>
-                            ),
-                          )}
+                              <div className="font-bold text-[11px] truncate mb-1">
+                                {att.opponent}
+                              </div>
+                              <div className="text-[9px] text-muted-foreground flex justify-between">
+                                <span>
+                                  {new Date(
+                                    parseISO(att.date),
+                                  ).toLocaleDateString("pt-BR")}
+                                </span>
+                                <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
+                                  <span className="text-[10px] font-bold">
+                                    {att.destruction}
+                                  </span>
+                                  <Percent size={10} />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -259,14 +252,13 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
-        <span className="text-[10px] sm:text-[11px] text-muted-foreground font-bold uppercase tracking-tighter text-center sm:text-left">
+        <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-tighter">
           {table.getRowModel().rows.length} jogadores no ranking
         </span>
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="h-9 flex-1 sm:flex-none sm:h-8 rounded-lg text-[11px]"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -275,7 +267,6 @@ export function DataTable({ columns, data }: { columns: any[]; data: any[] }) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 flex-1 sm:flex-none sm:h-8 rounded-lg text-[11px]"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

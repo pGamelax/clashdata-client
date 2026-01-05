@@ -1,8 +1,10 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
-import { Star, Shield, Trophy, Swords } from "lucide-react";
 
-export const columns: ColumnDef<any>[] = [
+import { ColumnDef } from "@tanstack/react-table";
+import { Star, Shield, Trophy } from "lucide-react";
+import { ProcessedPlayer } from "./types"; // Importe das interfaces acima
+
+export const columns: ColumnDef<ProcessedPlayer>[] = [
   {
     id: "rank",
     header: "#",
@@ -65,8 +67,8 @@ export const columns: ColumnDef<any>[] = [
           <Star size={12} className="fill-amber-400 text-amber-400" />
           {row.original.avgStars}
         </div>
-        <span className="text-muted-foreground">
-          {row.original.avgDestruction}%
+        <span className="text-[10px] text-muted-foreground">
+          {row.original.avgDestruction}% destruição
         </span>
       </div>
     ),
@@ -80,8 +82,8 @@ export const columns: ColumnDef<any>[] = [
           <Shield size={12} className="text-blue-500 fill-blue-500" />
           {row.original.avgDefenseStars}
         </div>
-        <span className="text-muted-foreground">
-          {row.original.avgDefenseDestruction}%
+        <span className="text-[10px] text-muted-foreground">
+          {row.original.avgDefenseDestruction}% destruição
         </span>
       </div>
     ),

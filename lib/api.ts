@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
-const API_URL = "http://e08448k4gkc0w8w44cgosks8.72.62.108.178.sslip.io";
+const API_URL = "https://api.clashdata.pro";
 
 export const api = {
   me: async () => {

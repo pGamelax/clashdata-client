@@ -2,7 +2,26 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
-export const columns: ColumnDef<any>[] = [
+// Tipagem para os ataques detalhados
+export interface WarAttack {
+  stars: number;
+  destructionPercentage: number;
+}
+
+// Interface principal para a linha da tabela
+export interface ClanWar {
+  id: string;
+  date: string;
+  clanName: string;
+  opponentName: string;
+  result: "Vitória" | "Derrota" | "Empate";
+  stars: number;
+  destruction: number;
+  type: string;
+  rawAttacks: WarAttack[]; // Importante para a linha expandida
+}
+
+export const columns: ColumnDef<ClanWar>[] = [
   {
     accessorKey: "date",
     header: "Data",
@@ -11,7 +30,7 @@ export const columns: ColumnDef<any>[] = [
     ),
   },
   {
-    accessorKey: "opponentName",
+    accessorKey: "clanName",
     header: "Clan",
     cell: ({ row }) => (
       <span className="font-bold">{row.original.clanName}</span>
@@ -21,18 +40,14 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "result",
     header: "Resultado",
     cell: ({ row }) => {
-      const isWin = row.original.result === "Vitória";
-      return (
-        <Badge
-          className={
-            isWin
-              ? "bg-emerald-500/10 text-emerald-600 border-none"
-              : "bg-red-500/10 text-red-600 border-none"
-          }
-        >
-          {row.original.result}
-        </Badge>
-      );
+      const result = row.original.result;
+      const styles = {
+        Vitória: "bg-emerald-500/10 text-emerald-600 border-none",
+        Derrota: "bg-red-500/10 text-red-600 border-none",
+        Empate: "bg-amber-500/10 text-amber-600 border-none",
+      };
+
+      return <Badge className={styles[result]}>{result}</Badge>;
     },
   },
   {

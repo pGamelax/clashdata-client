@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import { redirect } from "next/navigation";
 import { Trophy, Swords, TrendingUp, Sword } from "lucide-react";
 import { InfoView } from "./infoView";
+import { PlayerStats, ClanData } from "./types";
 
 export default async function Dashboard({
   params,
@@ -9,15 +10,16 @@ export default async function Dashboard({
   params: Promise<{ clanTag: string }>;
 }) {
   const user = await api.me();
-
   if (!user?.session) redirect("/sign-in");
 
   const { clanTag } = await params;
 
-  const [data, clanData] = await Promise.all([
-    api.dashboard.data("%23" + clanTag),
-    api.dashboard.clanInfo("%23" + clanTag),
-  ]);
+  // Tipando o retorno das promessas
+  const [data, clanData]: [{ players: PlayerStats[] }, ClanData] =
+    await Promise.all([
+      api.dashboard.data("%23" + clanTag),
+      api.dashboard.clanInfo("%23" + clanTag),
+    ]);
 
   const topPlayers = data.players.slice(0, 15);
 
@@ -42,7 +44,10 @@ export default async function Dashboard({
     },
     {
       label: "Taxa de Vitória",
-      value: `${((clanData.warWins / clanData.totalWars) * 100).toFixed(2)}%`,
+      value:
+        clanData.totalWars > 0
+          ? `${((clanData.warWins / clanData.totalWars) * 100).toFixed(2)}%`
+          : "0%",
       icon: TrendingUp,
       color: "text-emerald-500",
     },
