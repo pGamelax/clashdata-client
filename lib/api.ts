@@ -27,7 +27,9 @@ export const api = {
       return res.json();
     },
     clanInfo: async (clanTag: string) => {
-      const res = await serverFetch(`${API_URL}/clans/clan-info/${clanTag}`);
+      const res = await serverFetch(
+        `${API_URL}/clans/clan-info?clanTag=${clanTag}`,
+      );
       return res.json();
     },
   },
