@@ -16,7 +16,7 @@ export default async function PainelLayout({
     <div className="bg-backgroud h-full">
       <Header user={user.user} />
       {children}
-      <Footer/>
+      <Footer />
     </div>
   );
 }
