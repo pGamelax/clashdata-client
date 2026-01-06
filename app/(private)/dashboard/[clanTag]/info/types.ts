@@ -1,4 +1,3 @@
-// types.ts
 import { LucideIcon } from "lucide-react";
 
 export interface WarAction {
@@ -49,5 +48,4 @@ export interface InfoViewProps {
   };
   topPlayers: PlayerStats[];
   clanTag: string;
-  stats: StatItem[];
 }

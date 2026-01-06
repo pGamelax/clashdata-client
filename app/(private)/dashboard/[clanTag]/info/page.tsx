@@ -1,6 +1,5 @@
 import { api } from "@/lib/api";
 import { redirect } from "next/navigation";
-import { Trophy, Swords, TrendingUp, Sword } from "lucide-react";
 import { InfoView } from "./infoView";
 import { PlayerStats, ClanData } from "./types";
 
@@ -14,7 +13,6 @@ export default async function Dashboard({
 
   const { clanTag } = await params;
 
-  // Tipando o retorno das promessas
   const [data, clanData]: [{ players: PlayerStats[] }, ClanData] =
     await Promise.all([
       api.dashboard.data("%23" + clanTag),
@@ -23,43 +21,12 @@ export default async function Dashboard({
 
   const topPlayers = data.players.slice(0, 15);
 
-  const stats = [
-    {
-      label: "Vitórias",
-      value: clanData.warWins,
-      icon: Trophy,
-      color: "text-amber-500",
-    },
-    {
-      label: "Derrotas",
-      value: clanData.warLosses,
-      icon: Sword,
-      color: "text-rose-500",
-    },
-    {
-      label: "Total de Guerras",
-      value: clanData.totalWars,
-      icon: Swords,
-      color: "text-indigo-500",
-    },
-    {
-      label: "Taxa de Vitória",
-      value:
-        clanData.totalWars > 0
-          ? `${((clanData.warWins / clanData.totalWars) * 100).toFixed(2)}%`
-          : "0%",
-      icon: TrendingUp,
-      color: "text-emerald-500",
-    },
-  ];
-
   return (
     <InfoView
       clanData={clanData}
       data={data}
       topPlayers={topPlayers}
       clanTag={clanTag}
-      stats={stats}
     />
   );
 }
