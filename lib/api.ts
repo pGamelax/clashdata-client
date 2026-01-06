@@ -18,7 +18,9 @@ export const api = {
   },
   dashboard: {
     data: async (clanTag: string) => {
-      const res = await serverFetch(`${API_URL}/dashboard/data/${clanTag}`);
+      const res = await serverFetch(
+        `${API_URL}/dashboard/data?clanTag=${clanTag}`,
+      );
       if (res.status === 401) {
         redirect("/dashboard/clans");
       }
