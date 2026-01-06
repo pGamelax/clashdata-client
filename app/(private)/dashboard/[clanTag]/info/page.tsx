@@ -15,8 +15,8 @@ export default async function Dashboard({
 
   const [data, clanData]: [{ players: PlayerStats[] }, ClanData] =
     await Promise.all([
-      api.dashboard.data("%23" + clanTag),
-      api.dashboard.clanInfo("%23" + clanTag),
+      api.dashboard.data("#" + clanTag),
+      api.dashboard.clanInfo("#" + clanTag),
     ]);
 
   const topPlayers = data.players.slice(0, 15);

@@ -18,19 +18,43 @@ export const api = {
   },
   dashboard: {
     data: async (clanTag: string) => {
-      const res = await serverFetch(
-        `${API_URL}/dashboard/data?clanTag=${clanTag}`,
-      );
-      if (res.status === 401) {
-        redirect("/dashboard/clans");
+      try {
+        const res = await serverFetch(
+          `${API_URL}/dashboard/data?clanTag=${encodeURIComponent(clanTag)}`,
+        );
+
+        if (res.status === 401) {
+          redirect("/dashboard/clans");
+        }
+
+        if (!res.ok) {
+          throw new Error(`Erro na requisição: ${res.status}`);
+        }
+
+        return await res.json();
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Erro desconhecido";
+        console.error("Erro em data:", message);
+        return null; // Ou trate conforme a necessidade da sua UI
       }
-      return res.json();
     },
+
     clanInfo: async (clanTag: string) => {
-      const res = await serverFetch(
-        `${API_URL}/clans/clan-info?clanTag=${clanTag}`,
-      );
-      return res.json();
+      try {
+        const res = await serverFetch(
+          `${API_URL}/clans/clan-info?clanTag=${encodeURIComponent(clanTag)}`,
+        );
+
+        if (!res.ok) {
+          throw new Error(`Erro ao buscar info do clan: ${res.status}`);
+        }
+        
+        return await res.json();
+      } catch (err) {
+        console.error("Erro em clanInfo:", err);
+        throw err; // Repassa o erro para ser tratado pelo Error Boundary do Next.js
+      }
     },
   },
   clans: {
