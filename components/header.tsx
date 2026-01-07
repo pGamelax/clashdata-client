@@ -1,4 +1,6 @@
 "use client";
+
+import { useState } from "react";
 import { ModeToggle } from "./toggle-mode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -9,17 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import {
-  NavigationMenu,
-  NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
-
 import { authClient } from "@/lib/auth-client";
-import { User, LogOut, Settings } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   user?: {
@@ -30,7 +27,9 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
-  const navigation = useRouter();
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const initials =
     user?.name
       ?.split(" ")
@@ -39,17 +38,24 @@ export function Header({ user }: HeaderProps) {
       .toUpperCase()
       .slice(0, 2) || "U";
 
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push("/sign-in");
+    router.refresh();
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="max-w-400 mx-auto flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo */}
         <Link
-          href={"/"}
-          className="flex items-center gap-2 group cursor-pointer"
+          href="/"
+          className="flex items-center gap-2 group transition-opacity hover:opacity-90"
         >
           <div className="text-primary transition-transform group-hover:scale-110 duration-200">
             <svg
-              width="32"
-              height="32"
+              width="28"
+              height="28"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -92,39 +98,43 @@ export function Header({ user }: HeaderProps) {
               />
             </svg>
           </div>
-          <h1 className="text-xl font-black tracking-tighter sm:text-2xl">
-            CLASH<span className="text-primary">DATA</span>
+          <h1 className="text-lg font-black tracking-tighter sm:text-xl uppercase">
+            Clash<span className="text-primary">Data</span>
           </h1>
         </Link>
 
-        <div>
-          <NavigationMenu
-            className={`tracking-tighter leading-relaxed ${
-              !user ? "hidden" : ""
-            }`}
-          >
-            <NavigationMenuLink asChild>
-              <Link href="/dashboard/clans">CLANS</Link>
-            </NavigationMenuLink>
-          </NavigationMenu>
-        </div>
-        <div className="flex items-center gap-4">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6">
+          {user && (
+            <Link
+              href="/dashboard/clans"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              CLANS
+            </Link>
+          )}
+        </nav>
+
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-2 sm:gap-4">
           <ModeToggle />
 
-          <div className="h-6 w-px bg-border mx-1" />
-
           {user ? (
-            <div>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:block h-6 w-px bg-border mx-1" />
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-3 outline-none hover:opacity-80 transition-opacity">
-                    <p className="hidden md:block text-sm font-medium text-muted-foreground">
-                      {user?.name || "Usuário"}
-                    </p>
-                    <Avatar className="h-9 w-9 border border-border">
+                  <button className="flex items-center gap-2 outline-none group">
+                    <div className="hidden md:flex flex-col items-end text-right">
+                      <span className="text-sm font-semibold leading-none group-hover:text-primary transition-colors">
+                        {user.name?.split(" ")[0]}
+                      </span>
+                    </div>
+                    <Avatar className="h-9 w-9 border-2 border-transparent group-hover:border-primary/20 transition-all">
                       <AvatarImage
-                        src={user?.image || ""}
-                        alt={user?.name || "User"}
+                        src={user.image || ""}
+                        alt={user.name || "User"}
                       />
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                         {initials}
@@ -135,52 +145,74 @@ export function Header({ user }: HeaderProps) {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-56 mt-2 rounded-xl"
+                  className="w-56 mt-2 rounded-xl px-2"
                 >
-                  <DropdownMenuLabel className="font-normal">
+                  <DropdownMenuLabel className="font-normal py-3">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user?.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
+                      <p className="text-sm font-bold">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {/* <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Configurações</span>
-              </DropdownMenuItem> */}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-rose-500 focus:text-rose-500 cursor-pointer"
-                    onClick={() =>
-                      authClient
-                        .signOut()
-                        .then(() => navigation.push("/sign-in"))
-                    }
+                    className="text-destructive focus:text-destructive py-2.5 cursor-pointer"
+                    onClick={handleSignOut}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sair</span>
+                    Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* Mobile Menu Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
             </div>
           ) : (
-            <div className="flex flex-row gap-2">
-              <Link href={"/sign-up"}>
-                <Button>Cadastrar</Button>
+            <div className="flex items-center gap-2">
+              <Link href="/sign-in" className="hidden sm:block">
+                <Button variant="ghost" size="sm">
+                  Entrar
+                </Button>
               </Link>
-              <Link href={"/sign-in"}>
-                <Button>Entrar</Button>
+              <Link href="/sign-up">
+                <Button size="sm">Começar</Button>
               </Link>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <div
+        className={cn(
+          "md:hidden border-b bg-background transition-all duration-300 overflow-hidden",
+          isMenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0 invisible",
+        )}
+      >
+        <div className="container mx-auto py-4 px-4 flex flex-col gap-4">
+          <Link
+            href="/dashboard/clans"
+            className="flex items-center text-sm font-medium p-2 hover:bg-accent rounded-lg"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            CLANS
+          </Link>
+          {/* Adicione outros links mobile aqui */}
         </div>
       </div>
     </header>

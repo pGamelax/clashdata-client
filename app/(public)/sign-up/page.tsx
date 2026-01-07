@@ -6,7 +6,7 @@ export default async function SignInPage() {
   const user = await api.me();
 
   if (user?.session) {
-    redirect("/clans");
+    redirect("/dashboard/clans");
   }
 
   return (

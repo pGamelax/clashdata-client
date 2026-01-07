@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
-const API_URL = "https://api.clashdata.pro";
+const API_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export const api = {
   me: async () => {
@@ -49,7 +49,7 @@ export const api = {
         if (!res.ok) {
           throw new Error(`Erro ao buscar info do clan: ${res.status}`);
         }
-        
+
         return await res.json();
       } catch (err) {
         console.error("Erro em clanInfo:", err);
