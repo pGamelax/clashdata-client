@@ -63,17 +63,21 @@ export function InfoView({
             return (
               <div
                 key={i}
-                className="group relative flex flex-col bg-white dark:bg-zinc-900/50 rounded-3xl border border-border/50 shadow-sm p-6 hover:shadow-lg transition-all"
+                className="group relative flex flex-row justify-between md:flex-col bg-white dark:bg-zinc-900/50 rounded-3xl border border-border/50 shadow-sm p-6 hover:shadow-lg transition-all"
               >
-                <div
-                  className={`p-2 w-fit rounded-lg bg-white dark:bg-zinc-800 shadow-sm ${stat.color}`}
-                >
-                  <Icon size={20} />
+                <div className="flex flex-col space-y-2 justify-between">
+                  <div
+                    className={`p-2 w-fit rounded-lg bg-white dark:bg-zinc-800 shadow-sm ${stat.color}`}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.label}
+                    </p>
+                  </div>
                 </div>
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.label}
-                  </p>
                   <p className="text-3xl font-bold tracking-tight mt-1">
                     {stat.value}
                   </p>
