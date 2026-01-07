@@ -2,6 +2,11 @@ import { api } from "@/lib/api";
 import { redirect } from "next/navigation";
 import { InfoView } from "./infoView";
 import { PlayerStats, ClanData } from "./types";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard | Clashdata",
+};
 
 export default async function Dashboard({
   params,

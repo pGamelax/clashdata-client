@@ -41,8 +41,8 @@ export function InfoView({
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-zinc-950 p-4 lg:p-8 text-slate-900 dark:text-slate-100">
-      <div className="max-w-400 mx-auto space-y-8">
+    <div className="min-h-screen  bg-[#f8fafc] dark:bg-zinc-950 p-4 lg:p-8 text-slate-900 dark:text-slate-100">
+      <div className=" container mx-auto space-y-8">
         <header className="flex flex-col gap-1 px-1">
           <div className="flex items-end gap-3">
             <h1 className="text-2xl font-extrabold tracking-tight lg:text-4xl">

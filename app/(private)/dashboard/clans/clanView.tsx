@@ -16,7 +16,7 @@ export function ClansView({ clans }: { clans: any[] }) {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] p-4 lg:p-8 text-slate-900 dark:text-zinc-100">
-      <div className="max-w-400 mx-auto space-y-8">
+      <div className="container mx-auto space-y-8">
         <header className="flex flex-row items-center justify-between px-2">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight lg:text-4xl">
