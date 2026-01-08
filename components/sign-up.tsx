@@ -9,6 +9,7 @@ import z from "zod";
 import { authClient } from "../lib/auth-client";
 import Link from "next/link";
 import { Lock, Mail, Loader2, XCircle, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const signUpSchema = z.object({
   email: z.email("E-mail inválido"),
@@ -21,6 +22,7 @@ type SignUpSchema = z.infer<typeof signUpSchema>;
 export function SignUp() {
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -40,8 +42,15 @@ export function SignUp() {
         callbackURL: "/dashboard/clans",
       },
       {
-        onError(context) {},
-      }
+        // 2. Trate o sucesso aqui
+        onSuccess: () => {
+          router.push("/dashboard/clans");
+        },
+        // 3. Trate o erro aqui (aproveite para alimentar seu serverError)
+        onError: (context) => {
+          setServerError(context.error.message || "Erro ao criar conta");
+        },
+      },
     );
   }
 

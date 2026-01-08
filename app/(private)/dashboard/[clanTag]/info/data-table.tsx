@@ -130,36 +130,28 @@ export function DataTable({ columns, data }: DataTableProps) {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 w-full md:w-auto md:items-center">
-          <div className="relative w-full md:w-64">
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
+          {/* Input de Busca */}
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar jogador..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-9 rounded-xl h-10 w-full"
+              // h-10, rounded-xl e cores de borda idênticas ao botão
+              className="pl-9 h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-background focus-visible:ring-1"
             />
           </div>
-          <div className="flex gap-2 w-full items-center">
-            <div className="flex-1 md:flex-none">
-              <DatePickerWithRange date={date} setDate={setDate} />
-            </div>
-            {date && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setDate(undefined)}
-                className="h-10 w-10 shrink-0 rounded-xl"
-              >
-                <X size={18} />
-              </Button>
-            )}
+
+          {/* Date Picker */}
+          <div className="w-full sm:w-72 items-center gap-2">
+            <DatePickerWithRange date={date} setDate={setDate} />
           </div>
         </div>
       </div>
 
       <div className="rounded-xl sm:rounded-[2rem] border bg-white dark:bg-zinc-900/50 shadow-sm overflow-x-auto">
-        <div className="min-w-[600px] md:min-w-full">
+        <div className="min-w-150 md:min-w-full">
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-zinc-800/50">
               {table.getHeaderGroups().map((hg) => (
@@ -167,7 +159,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                   {hg.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="text-sm uppercase py-4 first:pl-4 last:pr-4"
+                      className=" uppercase py-4 first:pl-4 last:pr-4"
                     >
                       {flexRender(
                         header.column.columnDef.header,
@@ -212,30 +204,33 @@ export function DataTable({ columns, data }: DataTableProps) {
                               className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-border/50 shadow-sm"
                             >
                               <div className="flex justify-between items-center mb-2">
-                                <span className="text-[9px] font-bold uppercase text-muted-foreground">
+                                <span className="text-sm font-bold uppercase text-muted-foreground">
                                   Ataque {i + 1}
                                 </span>
-                                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
-                                  <span className="text-[10px] font-bold">
-                                    {att.stars}
-                                  </span>
-                                  <Star size={10} className="fill-current" />
+
+                                <div className="flex flex-row items-center gap-2">
+                                  <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
+                                    <span className="text-sm font-bold">
+                                      {att.destruction}
+                                    </span>
+                                    <Percent size={10} />
+                                  </div>
+                                  <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
+                                    <span className="text-sm font-bold">
+                                      {att.stars}
+                                    </span>
+                                    <Star size={10} className="fill-current" />
+                                  </div>
                                 </div>
                               </div>
-                              <div className="font-bold text-[11px] truncate mb-1">
-                                {att.opponent}
-                              </div>
-                              <div className="text-[9px] text-muted-foreground flex justify-between">
-                                <span>
-                                  {new Date(
-                                    parseISO(att.date),
-                                  ).toLocaleDateString("pt-BR")}
-                                </span>
-                                <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
-                                  <span className="text-[10px] font-bold">
-                                    {att.destruction}
+                              <div className="font-bold text-sm truncate flex flex-row justify-between">
+                                <span>{att.opponent}</span>
+                                <div className="text-sm text-muted-foreground flex justify-between">
+                                  <span>
+                                    {new Date(
+                                      parseISO(att.date),
+                                    ).toLocaleDateString("pt-BR")}
                                   </span>
-                                  <Percent size={10} />
                                 </div>
                               </div>
                             </div>
@@ -251,28 +246,23 @@ export function DataTable({ columns, data }: DataTableProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
-        <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-tighter">
-          {table.getRowModel().rows.length} jogadores no ranking
-        </span>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Próximo
-          </Button>
-        </div>
+      <div className="flex gap-2 justify-between flex-row w-full">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Anterior
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Próximo
+        </Button>
       </div>
     </div>
   );
