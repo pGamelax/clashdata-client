@@ -39,14 +39,13 @@ export function SignUp() {
         email,
         password,
         name,
-        callbackURL: "/dashboard/clans",
+        callbackURL: "/clans",
       },
       {
-        // 2. Trate o sucesso aqui
         onSuccess: () => {
-          router.push("/dashboard/clans");
+          router.push("/clans");
         },
-        // 3. Trate o erro aqui (aproveite para alimentar seu serverError)
+
         onError: (context) => {
           setServerError(context.error.message || "Erro ao criar conta");
         },
@@ -126,7 +125,6 @@ export function SignUp() {
             className="flex flex-col gap-5"
           >
             <div className="space-y-4">
-              {/* Name */}
               <div className="space-y-1.5">
                 <div className="relative">
                   <User
@@ -150,7 +148,7 @@ export function SignUp() {
                   </p>
                 )}
               </div>
-              {/* Email */}
+
               <div className="space-y-1.5">
                 <div className="relative">
                   <Mail
@@ -175,7 +173,6 @@ export function SignUp() {
                 )}
               </div>
 
-              {/* Password */}
               <div className="space-y-1.5">
                 <div className="relative">
                   <Lock

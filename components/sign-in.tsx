@@ -35,7 +35,7 @@ export function SignIn() {
       {
         email,
         password,
-        callbackURL: "//clans",
+        callbackURL: "/clans",
       },
       {
         onError(context) {

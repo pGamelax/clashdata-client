@@ -24,7 +24,7 @@ export const api = {
         );
 
         if (res.status === 401) {
-          redirect("/dashboard/clans");
+          redirect("/clans");
         }
 
         if (!res.ok) {

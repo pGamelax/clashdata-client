@@ -313,7 +313,6 @@ export function Header({ user, userClans }: HeaderProps) {
                             }`}
                           >
                             <div
-                              asChild
                               className={`font-bold text-xs text-muted-foreground ${pathname === `${options.url}/${clan.tag.replace("#", "")}` ? "text-primary" : ""}`}
                             >
                               <Link
