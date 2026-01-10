@@ -12,9 +12,11 @@ export default async function PainelLayout({
 
   if (!user?.session) redirect("/sign-in");
 
+  const userClans = await api.clans.listMyClans();
+
   return (
     <div className="bg-backgroud h-full">
-      <Header user={user.user} />
+      <Header user={user.user} userClans={userClans} />
       {children}
       <Footer />
     </div>

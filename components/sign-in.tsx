@@ -35,7 +35,7 @@ export function SignIn() {
       {
         email,
         password,
-        callbackURL: "/dashboard/clans",
+        callbackURL: "//clans",
       },
       {
         onError(context) {
@@ -57,7 +57,7 @@ export function SignIn() {
       <div className="w-full max-w-100 px-6 flex flex-col items-center gap-8">
         {/* LOGO */}
         <Link href={"/"} className="flex flex-col items-center gap-2">
-         <div className="text-primary transition-transform group-hover:scale-110 duration-200">
+          <div className="text-primary transition-transform group-hover:scale-110 duration-200">
             <svg
               width="32"
               height="32"

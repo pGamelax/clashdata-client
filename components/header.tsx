@@ -11,12 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { authClient } from "@/lib/auth-client";
-import { LogOut, Menu, X, LayoutDashboard } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { uuid, uuidv7 } from "better-auth";
 
 interface HeaderProps {
   user?: {
@@ -24,11 +26,33 @@ interface HeaderProps {
     image?: string | null;
     email?: string | null;
   };
+  userClans: {
+    name: string;
+    tag: string;
+  }[];
 }
 
-export function Header({ user }: HeaderProps) {
+const navClansOptions: {
+  name: string;
+  url: string;
+  dropdown: boolean;
+}[] = [
+  { name: "DASHBOARD", url: "/dashboard", dropdown: true },
+  // { name: "PUSH", url: "/push", dropdown: true },
+  // { name: "PLAYERS", url: "/players", dropdown: false },
+  { name: "MEUS CLANS", url: "/clans", dropdown: false },
+];
+
+export function Header({ user, userClans }: HeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [isClanMenuOpen, setIsClanMenuOpen] = useState("");
+  const [activeDesktopMenu, setActiveDesktopMenu] = useState<string | null>(
+    null,
+  );
 
   const initials =
     user?.name
@@ -104,14 +128,43 @@ export function Header({ user }: HeaderProps) {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-2">
           {user && (
-            <Link
-              href="/dashboard/clans"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-            >
-              CLANS
-            </Link>
+            <div className="flex flex-row items-center gap-2">
+              {navClansOptions.map((option, index) => {
+                if (option.dropdown) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() =>
+                        setActiveDesktopMenu(
+                          activeDesktopMenu === option.name
+                            ? null
+                            : option.name,
+                        )
+                      }
+                      className={cn(
+                        "font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors",
+                        activeDesktopMenu === option.name
+                          ? "bg-primary text-primary-foreground"
+                          : "",
+                      )}
+                    >
+                      {option.name}
+                    </button>
+                  );
+                }
+                return (
+                  <Link
+                    key={index}
+                    href={option.url}
+                    className="font-semibold text-xs p-2 rounded-xl hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    {option.name}
+                  </Link>
+                );
+              })}
+            </div>
           )}
         </nav>
 
@@ -197,22 +250,99 @@ export function Header({ user }: HeaderProps) {
         </div>
       </div>
 
+      <div
+        className={cn(
+          "hidden md:block border-t bg-background/50 transition-all duration-300 overflow-hidden",
+          activeDesktopMenu
+            ? "max-h-20 opacity-100"
+            : "max-h-0 opacity-0 invisible",
+        )}
+      >
+        <div className="container mx-auto py-3 px-4 flex items-center gap-4 justify-center">
+          {userClans.map((clan, index) => (
+            <Link
+              key={index}
+              href={`${navClansOptions.find((o) => o.name === activeDesktopMenu)?.url}/${clan.tag.replace("#", "")}`}
+              onClick={() => setActiveDesktopMenu(null)}
+              className={cn(
+                "text-sm font-bold hover:text-primary transition-colors",
+                pathname.includes(clan.tag.replace("#", ""))
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
+            >
+              {clan.name}
+            </Link>
+          ))}
+        </div>
+      </div>
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
           "md:hidden border-b bg-background transition-all duration-300 overflow-hidden",
-          isMenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0 invisible",
+          isMenuOpen
+            ? "min-h-content opacity-100"
+            : "max-h-0 opacity-0 invisible",
         )}
       >
-        <div className="container mx-auto py-4 px-4 flex flex-col gap-4">
-          <Link
-            href="/dashboard/clans"
-            className="flex items-center text-sm font-medium p-2 hover:bg-accent rounded-lg"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            CLANS
-          </Link>
-          {/* Adicione outros links mobile aqui */}
+        <div className="container mx-auto py-4 px-4 flex flex-col gap-2">
+          {navClansOptions.length > 0 &&
+            navClansOptions.map((options, index: number) => {
+              if (options.dropdown) {
+                return (
+                  <div
+                    key={index}
+                    onClick={(e) => {
+                      setIsClanMenuOpen(options.name);
+                    }}
+                  >
+                    <div
+                      className={`font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground text-start w-full text-start ${isClanMenuOpen === options.name ? "bg-primary text-primary-foreground" : ""}`}
+                    >
+                      {options.name}
+                    </div>
+                    <div>
+                      {userClans.map((clan, index: number) => {
+                        return (
+                          <div
+                            key={index}
+                            className={`flex flex-col px-4 py-2 gap-1  ${
+                              isClanMenuOpen === options.name
+                                ? "min-h-content opacity-100 flex"
+                                : "max-h-0 opacity-0  hidden"
+                            }`}
+                          >
+                            <div
+                              asChild
+                              className={`font-bold text-xs text-muted-foreground ${pathname === `${options.url}/${clan.tag.replace("#", "")}` ? "text-primary" : ""}`}
+                            >
+                              <Link
+                                href={`${options.url}/${clan.tag.replace("#", "")}`}
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {clan.name}
+                              </Link>
+                            </div>
+                            <div />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              } else if (!options.dropdown) {
+                return (
+                  <Link
+                    key={crypto.randomUUID()}
+                    href={options.url}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground text-start ${pathname.startsWith(options.url) ? "text-primary" : ""}`}
+                  >
+                    {options.name}
+                  </Link>
+                );
+              }
+            })}
         </div>
       </div>
     </header>
