@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { ProcessedPlayer } from "./types";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// Função auxiliar para renderizar o ícone de ordenação apenas quando ativo
 const SortButton = ({ column, label }: { column: any; label: string }) => {
   const isSorted = column.getIsSorted();
   return (
@@ -78,7 +78,9 @@ export const columns: ColumnDef<ProcessedPlayer>[] = [
           </div>
           <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all ${progress > 80 ? "bg-emerald-500" : "bg-primary"}`}
+              className={`h-full transition-all ${
+                progress > 80 ? "bg-emerald-500" : "bg-primary"
+              }`}
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -115,5 +117,42 @@ export const columns: ColumnDef<ProcessedPlayer>[] = [
         </span>
       </div>
     ),
+  },
+
+  {
+    accessorKey: "warCount",
+    header: ({ column }) => <SortButton column={column} label="PARTICIPAÇÃO" />,
+    cell: ({ row }) => {
+      const wars = row.original.warCount;
+      const attacks = row.original.attackCount;
+
+      const maxPossibleAttacks = wars * 2;
+      const participationRate =
+        maxPossibleAttacks > 0
+          ? Math.min((attacks / maxPossibleAttacks) * 100, 100)
+          : 0;
+
+      return (
+        <div className="flex flex-col text-base min-w-25">
+          <div className="flex items-center gap-1 font-semibold">
+            <Trophy size={12} className="text-primary" />
+            {wars} {wars === 1 ? "Guerra" : "Guerras"}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground uppercase font-semibold">
+              {attacks}/{maxPossibleAttacks}
+            </span>
+            <span
+              className={cn(
+                "px-1.5 py-0.5 rounded-md bg-secondary text-muted-foreground font-semibold",
+                participationRate < 50 && "text-destructive bg-destructive/10"
+              )}
+            >
+              {participationRate.toFixed(0)}%
+            </span>
+          </div>
+        </div>
+      );
+    },
   },
 ];

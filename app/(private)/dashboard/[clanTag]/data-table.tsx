@@ -20,11 +20,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Percent, Search, Star, X } from "lucide-react";
+import { Percent, Search, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DatePickerWithRange } from "@/components/data-picker";
-// IMPORTANTE: Importando ProcessedPlayer aqui
 import { PlayerStats, WarAction, ProcessedPlayer } from "./types";
 
 interface DataTableProps {
@@ -40,39 +39,55 @@ export function DataTable({ columns, data }: DataTableProps) {
   const { dynamicData, warCount } = useMemo(() => {
     const K = 8;
     const GLOBAL_AVG = 2.0;
-    const uniqueWarDates = new Set<string>();
+    const totalClanWarDates = new Set<string>();
 
     if (!Array.isArray(data)) return { dynamicData: [], warCount: 0 };
 
     const processed: ProcessedPlayer[] = data
       .map((player) => {
+        const playerUniqueWars = new Set<string>();
+
         const attacks = player.allAttacks.filter((att: WarAction) => {
           const attackDate = parseISO(att.date);
-          if (!date?.from || !date?.to) {
-            uniqueWarDates.add(att.date);
-            return true;
+          const isInRange =
+            !date?.from ||
+            !date?.to ||
+            isWithinInterval(attackDate, {
+              start: date.from,
+              end: date.to,
+            });
+
+          if (isInRange) {
+            playerUniqueWars.add(att.date);
+            totalClanWarDates.add(att.date);
           }
-          const isInRange = isWithinInterval(attackDate, {
-            start: date.from,
-            end: date.to,
-          });
-          if (isInRange) uniqueWarDates.add(att.date);
           return isInRange;
         });
 
         const defenses = player.allDefenses.filter((def: WarAction) => {
-          if (!date?.from || !date?.to) return true;
-          return isWithinInterval(parseISO(def.date), {
-            start: date.from,
-            end: date.to,
-          });
+          const defenseDate = parseISO(def.date);
+          const isInRange =
+            !date?.from ||
+            !date?.to ||
+            isWithinInterval(defenseDate, {
+              start: date.from,
+              end: date.to,
+            });
+
+          if (isInRange) {
+            playerUniqueWars.add(def.date);
+            totalClanWarDates.add(def.date);
+          }
+          return isInRange;
         });
 
         const attackCount = attacks.length;
+        const playerWarCount = playerUniqueWars.size;
+
         const totalStars = attacks.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDestr = attacks.reduce(
           (acc, cur) => acc + cur.destruction,
-          0,
+          0
         );
 
         const performanceScore =
@@ -82,13 +97,18 @@ export function DataTable({ columns, data }: DataTableProps) {
         const totalDefStars = defenses.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDefDestr = defenses.reduce(
           (acc, cur) => acc + cur.destruction,
-          0,
+          0
         );
 
         return {
           ...player,
           attackCount,
+          warCount: playerWarCount,
           performanceScore,
+          attacksPerWar:
+            playerWarCount > 0
+              ? (attackCount / playerWarCount).toFixed(2)
+              : "0.00",
           avgStars:
             attackCount > 0 ? (totalStars / attackCount).toFixed(2) : "0.00",
           avgDestruction:
@@ -102,10 +122,10 @@ export function DataTable({ columns, data }: DataTableProps) {
           displayAttacks: attacks,
         };
       })
-      .filter((p) => (date?.from && date?.to ? p.attackCount > 0 : true))
+      .filter((p) => (date?.from && date?.to ? p.warCount > 0 : true))
       .sort((a, b) => b.performanceScore - a.performanceScore);
 
-    return { dynamicData: processed, warCount: uniqueWarDates.size };
+    return { dynamicData: processed, warCount: totalClanWarDates.size };
   }, [data, date]);
 
   const table = useReactTable({
@@ -121,6 +141,7 @@ export function DataTable({ columns, data }: DataTableProps) {
 
   return (
     <div className="space-y-4 w-full max-w-[100vw] overflow-hidden px-1 sm:px-0">
+      {/* Filtros e Busca */}
       <div className="flex flex-col gap-4 px-2 md:flex-row md:justify-between md:items-center">
         <div>
           <p className="text-sm text-muted-foreground mt-1">
@@ -131,27 +152,116 @@ export function DataTable({ columns, data }: DataTableProps) {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 items-center">
-          {/* Input de Busca */}
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar jogador..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              // h-10, rounded-xl e cores de borda idênticas ao botão
               className="pl-9 h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-background focus-visible:ring-1"
             />
           </div>
 
-          {/* Date Picker */}
           <div className="w-full sm:w-72 items-center gap-2">
             <DatePickerWithRange date={date} setDate={setDate} />
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl sm:rounded-[2rem] border bg-white dark:bg-zinc-900/50 shadow-sm overflow-x-auto">
-        <div className="min-w-150 md:min-w-full">
+      <div className="flex flex-col gap-3 md:hidden px-2">
+        {table.getRowModel().rows.map((row) => (
+          <div
+            key={row.id}
+            className="rounded-xl border bg-white dark:bg-zinc-900/50 shadow-sm overflow-hidden"
+          >
+            <div
+              className="p-2 space-y-4 cursor-pointer"
+              onClick={() =>
+                setExpandedRows((v) => ({ ...v, [row.id]: !v[row.id] }))
+              }
+            >
+              <div className="flex justify-between items-start">
+                {flexRender(
+                  row.getVisibleCells()[1].column.columnDef.cell,
+                  row.getVisibleCells()[1].getContext()
+                )}
+
+                <div className="text-right">
+                  {flexRender(
+                    row.getVisibleCells()[2].column.columnDef.cell,
+                    row.getVisibleCells()[2].getContext()
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                <div className="space-y-1">
+                  {flexRender(
+                    row.getVisibleCells()[3].column.columnDef.cell,
+                    row.getVisibleCells()[3].getContext()
+                  )}
+                </div>
+                <div className="space-y-1 text-right">
+              
+                  {flexRender(
+                    row.getVisibleCells()[5].column.columnDef.cell,
+                    row.getVisibleCells()[5].getContext()
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-center pt-1">
+                {expandedRows[row.id] ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </div>
+
+            {expandedRows[row.id] && (
+              <div className="p-3 bg-slate-50/50 dark:bg-zinc-950/30 border-t space-y-2">
+                {row.original.displayAttacks.map((att, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-border/50 shadow-sm"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-bold uppercase text-muted-foreground">
+                        Ataque {i + 1}
+                      </span>
+                      <div className="flex flex-row items-center gap-2">
+                        <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
+                          <span className="text-xs font-bold">
+                            {att.destruction}%
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
+                          <span className="text-xs font-bold">{att.stars}</span>
+                          <Star size={10} className="fill-current" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="font-bold text-sm truncate flex justify-between items-center">
+                      <span className="max-w-[150px] truncate">
+                        {att.opponent}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        {new Date(parseISO(att.date)).toLocaleDateString(
+                          "pt-BR"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden md:block rounded-xl sm:rounded-[2rem] border bg-white dark:bg-zinc-900/50 shadow-sm overflow-x-auto">
+        <div className="min-w-full">
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-zinc-800/50">
               {table.getHeaderGroups().map((hg) => (
@@ -159,11 +269,11 @@ export function DataTable({ columns, data }: DataTableProps) {
                   {hg.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className=" uppercase py-4 first:pl-4 last:pr-4"
+                      className="uppercase py-4 first:pl-6 last:pr-6"
                     >
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                     </TableHead>
                   ))}
@@ -182,11 +292,11 @@ export function DataTable({ columns, data }: DataTableProps) {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-2 first:pl-4 last:pr-4"
+                        className="py-3 first:pl-6 last:pr-6"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     ))}
@@ -195,9 +305,9 @@ export function DataTable({ columns, data }: DataTableProps) {
                     <TableRow className="bg-slate-50/30 dark:bg-zinc-950/30 border-none">
                       <TableCell
                         colSpan={columns.length}
-                        className="p-2 sm:p-4"
+                        className="p-4 sm:p-6"
                       >
-                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3">
                           {row.original.displayAttacks.map((att, i) => (
                             <div
                               key={i}
@@ -207,7 +317,6 @@ export function DataTable({ columns, data }: DataTableProps) {
                                 <span className="text-sm font-bold uppercase text-muted-foreground">
                                   Ataque {i + 1}
                                 </span>
-
                                 <div className="flex flex-row items-center gap-2">
                                   <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
                                     <span className="text-sm font-bold">
@@ -225,13 +334,11 @@ export function DataTable({ columns, data }: DataTableProps) {
                               </div>
                               <div className="font-bold text-sm truncate flex flex-row justify-between">
                                 <span>{att.opponent}</span>
-                                <div className="text-sm text-muted-foreground flex justify-between">
-                                  <span>
-                                    {new Date(
-                                      parseISO(att.date),
-                                    ).toLocaleDateString("pt-BR")}
-                                  </span>
-                                </div>
+                                <span className="text-sm text-muted-foreground font-normal">
+                                  {new Date(
+                                    parseISO(att.date)
+                                  ).toLocaleDateString("pt-BR")}
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -246,7 +353,8 @@ export function DataTable({ columns, data }: DataTableProps) {
         </div>
       </div>
 
-      <div className="flex gap-2 justify-between flex-row w-full">
+      {/* Paginação */}
+      <div className="flex gap-2 justify-between flex-row w-full px-2 sm:px-0">
         <Button
           variant="outline"
           size="sm"

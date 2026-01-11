@@ -22,6 +22,7 @@ export interface ProcessedPlayer extends PlayerStats {
   avgDefenseStars: string;
   avgDefenseDestruction: string;
   displayAttacks: WarAction[];
+  warCount: number;
 }
 
 export interface ClanData {
