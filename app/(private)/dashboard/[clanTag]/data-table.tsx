@@ -48,7 +48,7 @@ interface DataTableProps {
 export function DataTable({ columns, data }: DataTableProps) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
-  const [warLimit, setWarLimit] = useState<number>(20); // 0 = Todas
+  const [warLimit, setWarLimit] = useState<number>(20); 
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const { dynamicData, warCount } = useMemo(() => {
@@ -165,7 +165,7 @@ export function DataTable({ columns, data }: DataTableProps) {
     <div className="space-y-4 w-full max-w-[100vw] overflow-hidden px-1 sm:px-0">
       <div className="flex flex-col gap-4 px-2 lg:flex-row lg:justify-between lg:items-center">
         <div className="flex flex-col md:flex-row gap-3 items-center">
-          {/* Campo de Busca */}
+          {/* Busca - w-full para mobile, md:w-64 para desktop */}
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -176,24 +176,23 @@ export function DataTable({ columns, data }: DataTableProps) {
             />
           </div>
 
-          {/* Date Picker - w-auto no desktop para não esticar demais */}
-          <div className="w-full md:w-auto">
+          {/* Data - w-full para mobile, md:w-64 para desktop */}
+          <div className="w-full md:w-64">
             <DatePickerWithRange date={date} setDate={setDate} />
           </div>
 
-          {/* Histórico de Guerras - Largura idêntica ao Input de Busca */}
+          {/* Histórico - Agora com largura idêntica aos outros */}
           <div className="relative w-full md:w-64">
             <History className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
             <Select
               value={String(warLimit)}
               onValueChange={(value) => setWarLimit(Number(value))}
             >
-              {/* pl-10 abre espaço suficiente para o ícone sem encostar no texto */}
-              <SelectTrigger className="pl-10 h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-background focus:ring-1 focus:ring-offset-0">
+              {/* pl-10 impede que o texto "Últimas..." fique em cima do ícone */}
+              <SelectTrigger className="w-full h-10 pl-10 pr-3 rounded-xl border-slate-200 dark:border-zinc-800 bg-background focus:ring-1 focus:ring-offset-0">
                 <SelectValue placeholder="Guerras" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-slate-200 dark:border-zinc-800">
-                <SelectItem value="0">Todas as Guerras</SelectItem>
                 <SelectItem value="5">Últimas 5</SelectItem>
                 <SelectItem value="10">Últimas 10</SelectItem>
                 <SelectItem value="15">Últimas 15</SelectItem>
@@ -276,7 +275,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                       </div>
                     </div>
                     <div className="font-bold text-sm truncate flex justify-between items-center">
-                      <span className="max-w-[150px] truncate">
+                      <span className="max-w-37.5 truncate">
                         {att.opponent}
                       </span>
                       <span className="text-[10px] text-muted-foreground font-normal">

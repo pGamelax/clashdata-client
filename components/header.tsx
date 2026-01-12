@@ -1,8 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { ModeToggle } from "./toggle-mode";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+
+// Componentes ShadcnUI
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +24,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "./toggle-mode";
 
-import { authClient } from "@/lib/auth-client";
-import { LogOut, Menu, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
-import { uuid, uuidv7 } from "better-auth";
+// Ícones
+import {
+  LogOut,
+  Menu,
+  BarChart3,
+  Users,
+  LayoutDashboard,
+  Shield,
+} from "lucide-react";
+import Image from "next/image";
 
 interface HeaderProps {
   user?: {
@@ -32,27 +64,28 @@ interface HeaderProps {
   }[];
 }
 
-const navClansOptions: {
-  name: string;
-  url: string;
-  dropdown: boolean;
-}[] = [
-  { name: "DASHBOARD", url: "/dashboard", dropdown: true },
-  // { name: "PUSH", url: "/push", dropdown: true },
-  // { name: "PLAYERS", url: "/players", dropdown: false },
-  { name: "MEUS CLANS", url: "/clans", dropdown: false },
+const NAV_OPTIONS = [
+  {
+    name: "Dashboard",
+    url: "/dashboard",
+    dropdown: true,
+    icon: LayoutDashboard,
+  },
+ /*  { name: "Push", url: "/push", dropdown: true, icon: BarChart3 },
+  { name: "Players", url: "/players", dropdown: false, icon: Users }, */
+  { name: "Meus Clans", url: "/clans", dropdown: false, icon: Shield },
 ];
 
 export function Header({ user, userClans }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const [isClanMenuOpen, setIsClanMenuOpen] = useState("");
-  const [activeDesktopMenu, setActiveDesktopMenu] = useState<string | null>(
-    null,
-  );
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push("/sign-in");
+    router.refresh();
+  };
 
   const initials =
     user?.name
@@ -62,157 +95,165 @@ export function Header({ user, userClans }: HeaderProps) {
       .toUpperCase()
       .slice(0, 2) || "U";
 
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push("/sign-in");
-    router.refresh();
-  };
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 group transition-opacity hover:opacity-90"
-        >
-          <div className="text-primary transition-transform group-hover:scale-110 duration-200">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M8 17V13"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M12 17V11"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M16 17V15"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M4 10C4 10 2 10 2 7C2 4 5 4 5 4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M20 10C20 10 22 10 22 7C22 4 19 4 19 4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <h1 className="text-lg font-black tracking-tighter sm:text-xl uppercase">
-            Clash<span className="text-primary">Data</span>
-          </h1>
-        </Link>
+        {/* LOGO */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="text-primary transition-transform group-hover:scale-110 duration-200">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2">
-          {user && (
-            <div className="flex flex-row items-center gap-2">
-              {navClansOptions.map((option, index) => {
-                if (option.dropdown) {
-                  return (
-                    <button
-                      key={index}
-                      onClick={() =>
-                        setActiveDesktopMenu(
-                          activeDesktopMenu === option.name
-                            ? null
-                            : option.name,
-                        )
-                      }
-                      className={cn(
-                        "font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors",
-                        activeDesktopMenu === option.name
-                          ? "bg-primary text-primary-foreground"
-                          : "",
-                      )}
-                    >
-                      {option.name}
-                    </button>
-                  );
-                }
-                return (
-                  <Link
-                    key={index}
-                    href={option.url}
-                    className="font-semibold text-xs p-2 rounded-xl hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    {option.name}
-                  </Link>
-                );
-              })}
+                <path
+                  d="M8 17V13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M12 17V11"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M16 17V15"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M4 10C4 10 2 10 2 7C2 4 5 4 5 4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M20 10C20 10 22 10 22 7C22 4 19 4 19 4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
-          )}
-        </nav>
+            <span className="text-xl font-black tracking-tighter uppercase">
+              Clash<span className="text-primary font-extrabold">Data</span>
+            </span>
+          </Link>
 
-        {/* Right Side Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
+          {/* DESKTOP NAVIGATION (NavigationMenu) */}
+          <nav className="hidden md:flex">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {user &&
+                  NAV_OPTIONS.map((item) => (
+                    <NavigationMenuItem key={item.name}>
+                      {item.dropdown ? (
+                        <>
+                          <NavigationMenuTrigger className="bg-transparent font-medium">
+                            {item.name}
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-100 gap-3 p-4 md:w-125 md:grid-cols-2 lg:w-150">
+                              {userClans.map((clan) => (
+                                <ListItem
+                                  key={clan.tag}
+                                  title={clan.name}
+                                  href={`${item.url}/${clan.tag.replace(
+                                    "#",
+                                    ""
+                                  )}`}
+                                >
+                                  Visualizar dados de {item.name.toLowerCase()}{" "}
+                                  para este clã.
+                                </ListItem>
+                              ))}
+                            </ul>
+                          </NavigationMenuContent>
+                        </>
+                      ) : (
+                        <Link href={item.url} legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              navigationMenuTriggerStyle(),
+                              "bg-transparent font-medium"
+                            )}
+                          >
+                            {item.name}
+                          </NavigationMenuLink>
+                        </Link>
+                      )}
+                    </NavigationMenuItem>
+                  ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+        </div>
+
+        {/* ACTIONS & USER PROFILE */}
+        <div className="flex items-center gap-3">
           <ModeToggle />
 
           {user ? (
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:block h-6 w-px bg-border mx-1" />
-
+            <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 outline-none group">
-                    <div className="hidden md:flex flex-col items-end text-right">
-                      <span className="text-sm font-semibold leading-none group-hover:text-primary transition-colors">
-                        {user.name?.split(" ")[0]}
-                      </span>
-                    </div>
-                    <Avatar className="h-9 w-9 border-2 border-transparent group-hover:border-primary/20 transition-all">
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full ring-offset-background transition-all hover:ring-2 hover:ring-primary/20"
+                  >
+                    <Avatar className="h-9 w-9 border">
                       <AvatarImage
                         src={user.image || ""}
-                        alt={user.name || "User"}
+                        alt={user.name || ""}
                       />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      <AvatarFallback className="font-bold text-xs">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                  </button>
+                  </Button>
                 </DropdownMenuTrigger>
-
                 <DropdownMenuContent
+                  className="w-56 mt-2"
                   align="end"
-                  className="w-56 mt-2 rounded-xl px-2"
+                  forceMount
                 >
-                  <DropdownMenuLabel className="font-normal py-3">
+                  <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-bold">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-sm font-bold leading-none">
+                        {user.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/profile">Meu Perfil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/settings">Configurações</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-destructive focus:text-destructive py-2.5 cursor-pointer"
+                    className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer"
                     onClick={handleSignOut}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -221,129 +262,166 @@ export function Header({ user, userClans }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Mobile Menu Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
+              {/* MOBILE MENU (Sheet) */}
+              <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden ml-2 border"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-75 sm:w-100">
+                  <SheetHeader>
+                    <SheetTitle className="text-left font-black tracking-tighter uppercase flex flex-row gap-2 items-center">
+                      
+                      <div className="text-primary transition-transform group-hover:scale-110 duration-200">
+                        <svg
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+
+                          <path
+                            d="M8 17V13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+
+                          <path
+                            d="M12 17V11"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+
+                          <path
+                            d="M16 17V15"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+
+                          <path
+                            d="M4 10C4 10 2 10 2 7C2 4 5 4 5 4"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+
+                          <path
+                            d="M20 10C20 10 22 10 22 7C22 4 19 4 19 4"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+                      <span>
+                        Clash<span className="text-primary">Data</span>
+                      </span>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-4 p-4">
+                    <Accordion type="single" collapsible className="w-full">
+                      {NAV_OPTIONS.map((option) =>
+                        option.dropdown ? (
+                          <AccordionItem
+                            value={option.name}
+                            key={option.name}
+                            className="border-none"
+                          >
+                            <AccordionTrigger className="py-2 text-base">
+                              <div className="flex items-center gap-2">
+                                <option.icon className="w-5 h-5 text-muted-foreground" />
+                                {option.name}
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="flex flex-col gap-1 pl-7 border-l-2 ml-2">
+                              {userClans.map((clan) => (
+                                <Link
+                                  key={clan.tag}
+                                  href={`${option.url}/${clan.tag.replace(
+                                    "#",
+                                    ""
+                                  )}`}
+                                  onClick={() => setIsMobileOpen(false)}
+                                  className="py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  {clan.name}
+                                </Link>
+                              ))}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ) : (
+                          <Link
+                            key={option.name}
+                            href={option.url}
+                            onClick={() => setIsMobileOpen(false)}
+                            className="flex items-center gap-2 py-3 text-base"
+                          >
+                            <option.icon className="w-5 h-5 text-muted-foreground" />
+                            {option.name}
+                          </Link>
+                        )
+                      )}
+                    </Accordion>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </>
           ) : (
             <div className="flex items-center gap-2">
-              <Link href="/sign-in" className="hidden sm:block">
-                <Button variant="ghost" size="sm">
-                  Entrar
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button size="sm">Começar</Button>
-              </Link>
+              <Button variant="ghost" asChild size="sm">
+                <Link href="/sign-in">Entrar</Link>
+              </Button>
+              <Button size="sm" asChild className="rounded-full px-5">
+                <Link href="/sign-up">Começar</Link>
+              </Button>
             </div>
           )}
-        </div>
-      </div>
-
-      <div
-        className={cn(
-          "hidden md:block border-t bg-background/50 transition-all duration-300 overflow-hidden",
-          activeDesktopMenu
-            ? "max-h-20 opacity-100"
-            : "max-h-0 opacity-0 invisible",
-        )}
-      >
-        <div className="container mx-auto py-3 px-4 flex items-center gap-4 justify-center">
-          {userClans.map((clan, index) => (
-            <Link
-              key={index}
-              href={`${navClansOptions.find((o) => o.name === activeDesktopMenu)?.url}/${clan.tag.replace("#", "")}`}
-              onClick={() => setActiveDesktopMenu(null)}
-              className={cn(
-                "text-sm font-bold hover:text-primary transition-colors",
-                pathname.includes(clan.tag.replace("#", ""))
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-            >
-              {clan.name}
-            </Link>
-          ))}
-        </div>
-      </div>
-      {/* Mobile Menu Overlay */}
-      <div
-        className={cn(
-          "md:hidden border-b bg-background transition-all duration-300 overflow-hidden",
-          isMenuOpen
-            ? "min-h-content opacity-100"
-            : "max-h-0 opacity-0 invisible",
-        )}
-      >
-        <div className="container mx-auto py-4 px-4 flex flex-col gap-2">
-          {navClansOptions.length > 0 &&
-            navClansOptions.map((options, index: number) => {
-              if (options.dropdown) {
-                return (
-                  <div
-                    key={index}
-                    onClick={(e) => {
-                      setIsClanMenuOpen(options.name);
-                    }}
-                  >
-                    <div
-                      className={`font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground text-start w-full text-start ${isClanMenuOpen === options.name ? "bg-primary text-primary-foreground" : ""}`}
-                    >
-                      {options.name}
-                    </div>
-                    <div>
-                      {userClans.map((clan, index: number) => {
-                        return (
-                          <div
-                            key={index}
-                            className={`flex flex-col px-4 py-2 gap-1  ${
-                              isClanMenuOpen === options.name
-                                ? "min-h-content opacity-100 flex"
-                                : "max-h-0 opacity-0  hidden"
-                            }`}
-                          >
-                            <div
-                              className={`font-bold text-xs text-muted-foreground ${pathname === `${options.url}/${clan.tag.replace("#", "")}` ? "text-primary" : ""}`}
-                            >
-                              <Link
-                                href={`${options.url}/${clan.tag.replace("#", "")}`}
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                {clan.name}
-                              </Link>
-                            </div>
-                            <div />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              } else if (!options.dropdown) {
-                return (
-                  <Link
-                    key={crypto.randomUUID()}
-                    href={options.url}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`font-semibold text-xs p-2 rounded-xl outline-0 hover:cursor-pointer hover:bg-primary hover:text-primary-foreground text-start ${pathname.startsWith(options.url) ? "text-primary" : ""}`}
-                  >
-                    {options.name}
-                  </Link>
-                );
-              }
-            })}
         </div>
       </div>
     </header>
   );
 }
+
+// Componente auxiliar para o NavigationMenu (Padrão Shadcn)
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-bold leading-none text-primary">
+            {title}
+          </div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";

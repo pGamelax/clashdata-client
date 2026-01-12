@@ -1,0 +1,87 @@
+
+            <svg
+
+              width="28"
+
+              height="28"
+
+              viewBox="0 0 24 24"
+
+              fill="none"
+
+              xmlns="http://www.w3.org/2000/svg"
+
+            >
+
+              <path
+
+                d="M4 10V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V10"
+
+                stroke="oklch(0.52 0.14 158)"
+
+                strokeWidth="10"
+
+                strokeLinecap="round"
+
+              />
+
+              <path
+
+                d="M8 17V13"
+
+                stroke="oklch(0.52 0.14 158)"
+
+                strokeWidth="10"
+
+                strokeLinecap="round"
+
+              />
+
+              <path
+
+                d="M12 17V11"
+
+                stroke="oklch(0.52 0.14 158)"
+
+                strokeWidth="10"
+
+                strokeLinecap="round"
+
+              />
+
+              <path
+
+                d="M16 17V15"
+
+                stroke="oklch(0.52 0.14 158)"
+                strokeWidth="2"
+
+                strokeLinecap="round"
+
+              />
+
+              <path
+
+                d="M4 10C4 10 2 10 2 7C2 4 5 4 5 4"
+
+                stroke="oklch(0.52 0.14 158)"
+                strokeWidth="2"
+
+                strokeLinecap="round"
+
+              />
+
+              <path
+
+                d="M20 10C20 10 22 10 22 7C22 4 19 4 19 4"
+
+                stroke="oklch(0.52 0.14 158)"
+
+                strokeWidth="2"
+
+                strokeLinecap="round"
+
+              />
+
+            </svg>
+
