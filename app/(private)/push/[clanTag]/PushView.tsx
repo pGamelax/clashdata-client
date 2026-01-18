@@ -32,10 +32,22 @@ export default function PushView({ rawData }: { rawData: any }) {
 
   const toSup = (n: number) => {
     const sups: any = {
-      "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-      "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+      "0": "⁰",
+      "1": "¹",
+      "2": "²",
+      "3": "³",
+      "4": "⁴",
+      "5": "⁵",
+      "6": "⁶",
+      "7": "⁷",
+      "8": "⁸",
+      "9": "⁹",
     };
-    return n.toString().split("").map((d) => sups[d]).join("");
+    return n
+      .toString()
+      .split("")
+      .map((d) => sups[d])
+      .join("");
   };
 
   const reportData = useMemo(() => {
@@ -44,7 +56,8 @@ export default function PushView({ rawData }: { rawData: any }) {
       .map((player: any) => {
         const dailyLogs = player.logs.filter(
           (log: any) =>
-            new Date(log.timestamp).toISOString().split("T")[0] === selectedDate
+            new Date(log.timestamp).toISOString().split("T")[0] ===
+            selectedDate,
         );
         const attacks = dailyLogs.filter((l: any) => l.type === "attack");
         const defenses = dailyLogs.filter((l: any) => l.type === "defense");
@@ -62,16 +75,27 @@ export default function PushView({ rawData }: { rawData: any }) {
 
   const copyToClipboard = () => {
     // Formata a data para o cabeçalho do clipboard
-    const displayDate = new Date(selectedDate + "T12:00:00").toLocaleDateString("pt-BR");
+    const displayDate = new Date(selectedDate + "T12:00:00").toLocaleDateString(
+      "pt-BR",
+    );
     const text = reportData
       .map(
-        (r) =>
+        (r: {
+          gain: number;
+          attackCount: number;
+          loss: number;
+          defenseCount: number;
+          final: number;
+          name: string;
+        }) =>
           `+${r.gain}${toSup(r.attackCount)} ${r.loss}${toSup(
-            r.defenseCount
-          )}  ${r.final}  ${r.name}`
+            r.defenseCount,
+          )}  ${r.final}  ${r.name}`,
       )
       .join("\n");
-    navigator.clipboard.writeText(`*Legend League Attacks - ${displayDate}*\n${text}`);
+    navigator.clipboard.writeText(
+      `*Legend League Attacks - ${displayDate}*\n${text}`,
+    );
   };
 
   return (
@@ -91,8 +115,8 @@ export default function PushView({ rawData }: { rawData: any }) {
               Acompanhamento diário de performance do clã.
             </p>
           </div>
-          
-          <button 
+
+          <button
             onClick={copyToClipboard}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-md active:scale-95"
           >
@@ -144,7 +168,9 @@ export default function PushView({ rawData }: { rawData: any }) {
             <div className="bg-indigo-500/10 text-indigo-500 p-2 rounded-xl">
               <ChartSpline size={20} />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Performance Detalhada</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Performance Detalhada
+            </h2>
           </div>
 
           <div className="bg-white dark:bg-zinc-900/50 rounded-3xl border border-border/50 shadow-sm overflow-hidden transition-all hover:shadow-md">
