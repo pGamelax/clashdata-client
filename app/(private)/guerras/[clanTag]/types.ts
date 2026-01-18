@@ -16,6 +16,7 @@ export interface PlayerStats {
 
 export interface ProcessedPlayer extends PlayerStats {
   attackCount: number;
+  totalPts: number;
   performanceScore: number;
   avgStars: string;
   avgDestruction: string;

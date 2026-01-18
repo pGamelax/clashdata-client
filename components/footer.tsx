@@ -1,13 +1,12 @@
 "use client";
 
-import { Github, Globe, Shield, Check } from "lucide-react";
+import Link from "next/link";
 
 export function Footer() {
   return (
     <footer className="w-full border-t border-border/40 bg-white dark:bg-zinc-900/80 backdrop-blur-md mt-auto">
       <div className="max-w-400 mx-auto px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        
           <div className="space-y-2 text-center md:text-left">
             <div className="flex items-center gap-2 group cursor-pointer">
               <div className="text-primary transition-transform group-hover:scale-110 duration-200">
@@ -65,30 +64,29 @@ export function Footer() {
             </p>
           </div>
 
-          
-
           <div className="flex flex-col items-center md:items-end gap-2">
-            {/* <div className="flex items-center gap-4 mb-1 text-muted-foreground">
-              <a
-                href="#"
-                className="hover:text-slate-900 dark:hover:text-white transition-all"
-              >
-                <Github size={18} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-slate-900 dark:hover:text-white transition-all"
-              >
-                <Globe size={18} />
-              </a>
-            </div> */}
-
             <div className="text-[10px] font-medium text-muted-foreground space-y-1 text-center md:text-right">
               <p>© {new Date().getFullYear()} CLASHDATA — ANALYTICS TOOL</p>
               <div className="flex items-center justify-center md:justify-end gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="uppercase tracking-tighter font-bold text-slate-500 dark:text-zinc-400">
                   Sincronizado com Supercell API
+                </span>
+              </div>
+              <div>
+                <span className="uppercase tracking-tighter font-bold text-slate-500 dark:text-zinc-400">
+                  Este conteúdo não é afiliado, endossado, patrocinado ou
+                  especificamente aprovado pela Supercell, e a Supercell não se
+                  responsabiliza por ele. Para mais informações, consulte
+                  <p>
+                    <Link
+                      target="_blank"
+                      className="text-primary"
+                      href={"https://supercell.com/en/fan-content-policy/"}
+                    >
+                      politicas da Supercell
+                    </Link>
+                  </p>
                 </span>
               </div>
             </div>

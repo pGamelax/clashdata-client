@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-// Componentes ShadcnUI
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -41,7 +40,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "./toggle-mode";
 
-// Ícones
 import {
   LogOut,
   Menu,
@@ -50,7 +48,6 @@ import {
   LayoutDashboard,
   Shield,
 } from "lucide-react";
-import Image from "next/image";
 
 interface HeaderProps {
   user?: {
@@ -66,13 +63,13 @@ interface HeaderProps {
 
 const NAV_OPTIONS = [
   {
-    name: "Dashboard",
-    url: "/dashboard",
+    name: "Guerras",
+    url: "/guerras",
     dropdown: true,
     icon: LayoutDashboard,
   },
- /*  { name: "Push", url: "/push", dropdown: true, icon: BarChart3 },
-  { name: "Players", url: "/players", dropdown: false, icon: Users }, */
+  //{ name: "Push", url: "/push", dropdown: true, icon: BarChart3 },
+  /* { name: "Players", url: "/players", dropdown: false, icon: Users }, */
   { name: "Meus Clans", url: "/clans", dropdown: false, icon: Shield },
 ];
 
@@ -98,7 +95,6 @@ export function Header({ user, userClans }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* LOGO */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="text-primary transition-transform group-hover:scale-110 duration-200">
@@ -157,7 +153,6 @@ export function Header({ user, userClans }: HeaderProps) {
             </span>
           </Link>
 
-          {/* DESKTOP NAVIGATION (NavigationMenu) */}
           <nav className="hidden md:flex">
             <NavigationMenu>
               <NavigationMenuList>
@@ -177,7 +172,7 @@ export function Header({ user, userClans }: HeaderProps) {
                                   title={clan.name}
                                   href={`${item.url}/${clan.tag.replace(
                                     "#",
-                                    ""
+                                    "",
                                   )}`}
                                 >
                                   Visualizar dados de {item.name.toLowerCase()}{" "}
@@ -188,15 +183,14 @@ export function Header({ user, userClans }: HeaderProps) {
                           </NavigationMenuContent>
                         </>
                       ) : (
-                        <Link href={item.url} legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={cn(
-                              navigationMenuTriggerStyle(),
-                              "bg-transparent font-medium"
-                            )}
-                          >
-                            {item.name}
-                          </NavigationMenuLink>
+                        <Link
+                          href={item.url}
+                          className={cn(
+                            navigationMenuTriggerStyle(),
+                            "bg-transparent font-medium",
+                          )}
+                        >
+                          {item.name}
                         </Link>
                       )}
                     </NavigationMenuItem>
@@ -206,7 +200,6 @@ export function Header({ user, userClans }: HeaderProps) {
           </nav>
         </div>
 
-        {/* ACTIONS & USER PROFILE */}
         <div className="flex items-center gap-3">
           <ModeToggle />
 
@@ -244,14 +237,14 @@ export function Header({ user, userClans }: HeaderProps) {
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                  {/*     <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/profile">Meu Perfil</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/settings">Configurações</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator /> */}
                   <DropdownMenuItem
                     className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer"
                     onClick={handleSignOut}
@@ -262,7 +255,6 @@ export function Header({ user, userClans }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* MOBILE MENU (Sheet) */}
               <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -276,7 +268,6 @@ export function Header({ user, userClans }: HeaderProps) {
                 <SheetContent side="right" className="w-75 sm:w-100">
                   <SheetHeader>
                     <SheetTitle className="text-left font-black tracking-tighter uppercase flex flex-row gap-2 items-center">
-                      
                       <div className="text-primary transition-transform group-hover:scale-110 duration-200">
                         <svg
                           width="28"
@@ -354,7 +345,7 @@ export function Header({ user, userClans }: HeaderProps) {
                                   key={clan.tag}
                                   href={`${option.url}/${clan.tag.replace(
                                     "#",
-                                    ""
+                                    "",
                                   )}`}
                                   onClick={() => setIsMobileOpen(false)}
                                   className="py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -374,7 +365,7 @@ export function Header({ user, userClans }: HeaderProps) {
                             <option.icon className="w-5 h-5 text-muted-foreground" />
                             {option.name}
                           </Link>
-                        )
+                        ),
                       )}
                     </Accordion>
                   </div>
@@ -397,7 +388,6 @@ export function Header({ user, userClans }: HeaderProps) {
   );
 }
 
-// Componente auxiliar para o NavigationMenu (Padrão Shadcn)
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
@@ -409,7 +399,7 @@ const ListItem = React.forwardRef<
           ref={ref}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
+            className,
           )}
           {...props}
         >

@@ -48,7 +48,7 @@ interface DataTableProps {
 export function DataTable({ columns, data }: DataTableProps) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
-  const [warLimit, setWarLimit] = useState<number>(20); 
+  const [warLimit, setWarLimit] = useState<number>(20);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const { dynamicData, warCount } = useMemo(() => {
@@ -66,17 +66,18 @@ export function DataTable({ columns, data }: DataTableProps) {
 
     // 2. Ordenar as datas (mais recentes primeiro) e aplicar o limite se existir
     const sortedDates = Array.from(allDates).sort(
-      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      (a, b) => new Date(b).getTime() - new Date(a).getTime(),
     );
     const limitedDates =
       warLimit > 0 ? new Set(sortedDates.slice(0, warLimit)) : allDates;
 
     const totalClanWarDates = new Set<string>();
+    
 
     const processed: ProcessedPlayer[] = data
       .map((player) => {
         const playerUniqueWars = new Set<string>();
-
+        const totalPts = new Set<string>();
         // Filtro unificado: Range de Data + Limite de Quantidade
         const filterFn = (action: WarAction) => {
           const actionDate = parseISO(action.date);
@@ -96,6 +97,9 @@ export function DataTable({ columns, data }: DataTableProps) {
         const defenses = (player.allDefenses || []).filter(filterFn);
 
         attacks.forEach((att) => {
+          if (att.stars === 3) {
+            totalPts.add(crypto.randomUUID());
+          }
           playerUniqueWars.add(att.date);
           totalClanWarDates.add(att.date);
         });
@@ -109,7 +113,7 @@ export function DataTable({ columns, data }: DataTableProps) {
         const totalStars = attacks.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDestr = attacks.reduce(
           (acc, cur) => acc + cur.destruction,
-          0
+          0,
         );
 
         const performanceScore =
@@ -119,11 +123,11 @@ export function DataTable({ columns, data }: DataTableProps) {
         const totalDefStars = defenses.reduce((acc, cur) => acc + cur.stars, 0);
         const totalDefDestr = defenses.reduce(
           (acc, cur) => acc + cur.destruction,
-          0
+          0,
         );
-
         return {
           ...player,
+          totalPts: totalPts.size,
           attackCount,
           warCount: playerWarCount,
           performanceScore,
@@ -219,26 +223,32 @@ export function DataTable({ columns, data }: DataTableProps) {
               <div className="flex justify-between items-start">
                 {flexRender(
                   row.getVisibleCells()[1].column.columnDef.cell,
-                  row.getVisibleCells()[1].getContext()
+                  row.getVisibleCells()[1].getContext(),
                 )}
                 <div className="text-right">
                   {flexRender(
                     row.getVisibleCells()[2].column.columnDef.cell,
-                    row.getVisibleCells()[2].getContext()
+                    row.getVisibleCells()[2].getContext(),
                   )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-zinc-800">
                 <div className="space-y-1">
+                  <p className="text-muted-foreground text-sm font-semibold">
+                    Media de ataque
+                  </p>
                   {flexRender(
                     row.getVisibleCells()[3].column.columnDef.cell,
-                    row.getVisibleCells()[3].getContext()
+                    row.getVisibleCells()[3].getContext(),
                   )}
                 </div>
-                <div className="space-y-1 text-right">
+                <div className="space-y-1 ">
+                  <p className="text-muted-foreground text-sm font-semibold">
+                    Participacao
+                  </p>
                   {flexRender(
                     row.getVisibleCells()[5].column.columnDef.cell,
-                    row.getVisibleCells()[5].getContext()
+                    row.getVisibleCells()[5].getContext(),
                   )}
                 </div>
               </div>
@@ -268,7 +278,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                             {att.destruction}%
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
+                        <div className={`flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600 `}>
                           <span className="text-xs font-bold">{att.stars}</span>
                           <Star size={10} className="fill-current" />
                         </div>
@@ -280,7 +290,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                       </span>
                       <span className="text-[10px] text-muted-foreground font-normal">
                         {new Date(parseISO(att.date)).toLocaleDateString(
-                          "pt-BR"
+                          "pt-BR",
                         )}
                       </span>
                     </div>
@@ -305,7 +315,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                   >
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </TableHead>
                 ))}
@@ -328,7 +338,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -347,13 +357,13 @@ export function DataTable({ columns, data }: DataTableProps) {
                                 Ataque {i + 1}
                               </span>
                               <div className="flex flex-row items-center gap-2">
-                                <div className="flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full text-green-600">
+                                <div className={`flex items-center gap-1 ${att.destruction < 50 ? "bg-destructive/10" : att.destruction < 80 && att.destruction > 51 ? "bg-amber-600/10" : "bg-primary/10"} px-2 py-0.5 rounded-full ${att.destruction < 50 ? "text-destructive" : att.destruction < 80 && att.destruction > 51 ? "text-amber-600" : "text-primary"}`} >
                                   <span className="text-sm font-bold">
                                     {att.destruction}
                                   </span>
                                   <Percent size={10} />
                                 </div>
-                                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full text-amber-600">
+                                <div className={`flex items-center gap-1 ${att.stars == 3 ? "bg-primary/10" : att.stars == 2 ? "bg-amber-600/10" : "bg-destructive/10"} px-2 py-0.5 rounded-full ${att.stars == 3 ? "text-primary" : att.stars == 2 ? "text-amber-600" : "text-destructive"}`} >
                                   <span className="text-sm font-bold">
                                     {att.stars}
                                   </span>
@@ -365,7 +375,7 @@ export function DataTable({ columns, data }: DataTableProps) {
                               <span>{att.opponent}</span>
                               <span className="text-sm text-muted-foreground font-normal">
                                 {new Date(
-                                  parseISO(att.date)
+                                  parseISO(att.date),
                                 ).toLocaleDateString("pt-BR")}
                               </span>
                             </div>

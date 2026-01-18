@@ -55,7 +55,7 @@ export function SignIn() {
   return (
     <div className="flex flex-col justify-center items-center min-h-svh bg-slate-50/50 dark:bg-[#09090b]">
       <div className="w-full max-w-100 px-6 flex flex-col items-center gap-8">
-        {/* LOGO */}
+   
         <Link href={"/"} className="flex flex-col items-center gap-2">
           <div className="text-primary transition-transform group-hover:scale-110 duration-200">
             <svg
@@ -108,7 +108,7 @@ export function SignIn() {
           </h1>
         </Link>
 
-        {/* CARD */}
+
         <div className="w-full p-8 bg-white dark:bg-zinc-900/50 backdrop-blur-xl rounded-[2rem] border border-slate-200 dark:border-zinc-800 shadow-2xl shadow-zinc-200/40 dark:shadow-none">
           <div className="mb-8">
             <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
@@ -124,7 +124,7 @@ export function SignIn() {
             className="flex flex-col gap-5"
           >
             <div className="space-y-4">
-              {/* Email */}
+            
               <div className="space-y-1.5">
                 <div className="relative">
                   <Mail
@@ -143,7 +143,7 @@ export function SignIn() {
                 )}
               </div>
 
-              {/* Password */}
+          
               <div className="space-y-1.5">
                 <div className="relative">
                   <Lock
@@ -164,7 +164,7 @@ export function SignIn() {
               </div>
             </div>
 
-            {/* ERROR MESSAGE (Minimalista) */}
+       
             {serverError && (
               <div className="flex items-center gap-2 text-red-500 bg-red-500/5 border border-red-500/10 p-3 rounded-xl">
                 <XCircle size={16} />

@@ -1,3 +1,4 @@
+
 import { redirect } from "next/navigation";
 import { serverFetch } from "./server-fetch";
 
@@ -36,7 +37,7 @@ export const api = {
         const message =
           err instanceof Error ? err.message : "Erro desconhecido";
         console.error("Erro em data:", message);
-        return null; // Ou trate conforme a necessidade da sua UI
+        return null;
       }
     },
 
@@ -53,7 +54,7 @@ export const api = {
         return await res.json();
       } catch (err) {
         console.error("Erro em clanInfo:", err);
-        throw err; // Repassa o erro para ser tratado pelo Error Boundary do Next.js
+        throw err;
       }
     },
   },

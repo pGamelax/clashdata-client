@@ -20,7 +20,6 @@ export async function serverFetch(
       ...(options.headers || {}),
       Cookie: cookieHeader,
       "Content-Type": "application/json",
-      // Adicione isso para ajudar o Better Auth a validar a origem no server-side
       "x-better-auth-origin": "https://clashdata.pro",
     },
     cache: "no-store",

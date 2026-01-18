@@ -56,7 +56,7 @@ export function SignUp() {
   return (
     <div className="flex flex-col justify-center items-center min-h-svh bg-slate-50/50 dark:bg-[#09090b]">
       <div className="w-full max-w-100 px-6 flex flex-col items-center gap-8">
-        {/* LOGO */}
+     
         <Link href={"/"} className="flex flex-col items-center gap-2">
           <div className="text-primary transition-transform group-hover:scale-110 duration-200">
             <svg

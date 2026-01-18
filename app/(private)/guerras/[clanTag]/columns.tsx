@@ -1,5 +1,4 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Star,
@@ -8,6 +7,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  SwordsIcon,
 } from "lucide-react";
 import { ProcessedPlayer } from "./types";
 import { Button } from "@/components/ui/button";
@@ -134,21 +134,23 @@ export const columns: ColumnDef<ProcessedPlayer>[] = [
 
       return (
         <div className="flex flex-col text-base min-w-25">
-          <div className="flex items-center gap-1 font-semibold">
-            <Trophy size={12} className="text-primary" />
-            {wars} {wars === 1 ? "Guerra" : "Guerras"}
-          </div>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground uppercase font-semibold">
+            <SwordsIcon size={12} className="text-green-500 fill-green-500" />
+            <span className="uppercase font-semibold">
               {attacks}/{maxPossibleAttacks}
             </span>
             <span
               className={cn(
                 "px-1.5 py-0.5 rounded-md bg-secondary text-muted-foreground font-semibold",
-                participationRate < 50 && "text-destructive bg-destructive/10"
+                participationRate < 50 && "text-destructive bg-destructive/10",
               )}
             >
               {participationRate.toFixed(0)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-muted-foreground text-base">
+              {row.original.totalPts} pts
             </span>
           </div>
         </div>

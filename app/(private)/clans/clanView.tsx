@@ -8,7 +8,7 @@ export function ClansView({ clans }: { clans: any[] }) {
 
   const handleSetActiveClan = (tag: string) => {
     try {
-      router.push(`/dashboard/${tag.replace("#", "")}`);
+      router.push(`/guerras/${tag.replace("#", "")}`);
     } catch (error) {
       console.error("Erro ao definir clã ativo:", error);
     }
