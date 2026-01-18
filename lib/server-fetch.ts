@@ -22,6 +22,5 @@ export async function serverFetch(
       "Content-Type": "application/json",
       "x-better-auth-origin": "https://clashdata.pro",
     },
-    cache: "no-store",
   });
 }
